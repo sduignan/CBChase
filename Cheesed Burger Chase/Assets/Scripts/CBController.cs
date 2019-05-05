@@ -121,6 +121,8 @@ public class CBController : MonoBehaviour
             }
             else
             {
+                jumpState = 3;
+                anim.SetInteger("jumpState", jumpState);
                 anim.SetBool("jumping", false);
                 jumping = false;
             }
