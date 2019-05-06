@@ -6,15 +6,38 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public class TableController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    private BoxCollider2D boxCollider;
+    private Rigidbody2D rb2d;
+    [SerializeField]
+    private GameObject tableLeftSide;
+    [SerializeField]
+    private GameObject tableCentre;
+    [SerializeField]
+    private GameObject tableRightSide;
+    [SerializeField]
+    private float tableWidth;
 
-    // Update is called once per frame
-    void Update()
+    public void ResizeTable()
     {
+        float centreWidth = tableWidth * 1.12f - 0.56f;
+        SpriteRenderer centreSpriteRenderer = tableCentre.GetComponent<SpriteRenderer>();
+        centreSpriteRenderer.size = new Vector2(centreWidth, 0.84f);
         
+        if (!boxCollider)
+        {
+            boxCollider = GetComponent<BoxCollider2D>();
+        }
+        boxCollider.size = new Vector2(centreWidth + 0.28f, 0.42f);
+        boxCollider.offset = new Vector2(0, -0.21f);
+
+        if (!rb2d)
+        {
+            rb2d = GetComponent<Rigidbody2D>();
+            rb2d.bodyType = RigidbodyType2D.Static;
+        }
+
+        tableCentre.transform.position = transform.position;
+        tableLeftSide.transform.position = new Vector3(transform.position.x - (0.5f * centreWidth + 0.14f), transform.position.y, transform.position.z);
+        tableRightSide.transform.position = new Vector3(transform.position.x + (0.5f * centreWidth + 0.14f), transform.position.y, transform.position.z);
     }
 }

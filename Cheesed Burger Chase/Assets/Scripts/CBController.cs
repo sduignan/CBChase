@@ -17,6 +17,8 @@ public class CBController : MonoBehaviour
     private bool falling = false;
     private bool fallen = false;
     private bool jumping = false;
+    [SerializeField]
+    private CBFollower mainCam;
 
     private void Awake()
     {
@@ -27,16 +29,31 @@ public class CBController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        mainCam.follow = true;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collider)
     {
-        if (!fallen)
+        if (collider.gameObject.tag == "Obstacle" || collider.gameObject.tag == "Fallbox" )
         {
-            falling = true;
-            anim.SetBool("falling", true);
-            rb2D.velocity = new Vector2(-rb2D.velocity.x, rb2D.velocity.y);
+            if (!fallen)
+            {
+                falling = true;
+                anim.SetBool("falling", true);
+
+                if (collider.gameObject.tag == "Obstacle")
+                {
+                    rb2D.velocity = new Vector2(-rb2D.velocity.x, rb2D.velocity.y);
+                }
+            }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collider)
+    {
+        if (collider.gameObject.tag == "Fallbox")
+        {
+            mainCam.follow = false;
         }
     }
 
@@ -61,6 +78,7 @@ public class CBController : MonoBehaviour
                 anim.SetBool("running", false);
                 anim.SetBool("jumping", false);
                 anim.Play("CB_idle");
+                mainCam.follow = true;
             }
         }
         else

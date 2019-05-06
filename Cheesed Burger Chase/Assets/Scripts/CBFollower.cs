@@ -6,6 +6,7 @@ public class CBFollower : MonoBehaviour
 {
     [SerializeField]
     private Transform followee;
+    public bool follow = true;
 
     // Start is called before the first frame update
     void Start()
@@ -21,6 +22,9 @@ public class CBFollower : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.position = new Vector3(followee.position.x, followee.position.y, transform.position.z);
+        if (follow)
+        {
+            transform.position = new Vector3(followee.position.x, followee.position.y, transform.position.z);
+        }
     }
 }
