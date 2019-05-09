@@ -88,6 +88,7 @@ public class CBController : MonoBehaviour
             {
                 rb2D.velocity = new Vector2((Mathf.Sign(rb2D.velocity.x)) * maxSpeed, rb2D.velocity.y);
             }
+
             anim.SetBool("running", Mathf.Abs(rb2D.velocity.x) > 0.001);
             anim.SetFloat("speedMultiplier", Mathf.Abs(rb2D.velocity.x) / maxSpeed);
 
@@ -156,6 +157,15 @@ public class CBController : MonoBehaviour
                     transform.localScale = new Vector3(1, 1, 1);
                 }
             }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (Mathf.Abs(rb2D.velocity.x) > maxSpeed)
+        {
+            Debug.Log("Reducing");
+            rb2D.velocity = new Vector2((Mathf.Sign(rb2D.velocity.x)) * maxSpeed, rb2D.velocity.y);
         }
     }
 }

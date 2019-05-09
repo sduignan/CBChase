@@ -6,8 +6,6 @@ using UnityEngine;
 public class ParallaxMeshController : MonoBehaviour
 {
     [SerializeField]
-    private Texture backgroundTexture;
-    [SerializeField]
     private Transform followee;
     [SerializeField]
     private float followRate = 0.25f;
@@ -21,7 +19,6 @@ public class ParallaxMeshController : MonoBehaviour
     {
         prevPos = followee.transform.position.x;
         meshRenderer = GetComponent<MeshRenderer>();
-        meshRenderer.material.SetTexture("_MainTex", backgroundTexture);
         quadWidth = transform.localScale.x;
     }
 
@@ -31,7 +28,8 @@ public class ParallaxMeshController : MonoBehaviour
         transform.position = new Vector3(followee.position.x, transform.position.y, transform.position.z);
 
         float distTravelled = prevPos - followee.transform.position.x;
-        offset += (distTravelled / quadWidth) * (followRate - 1);
+        float offsetInc = (distTravelled / quadWidth) * (followRate - 1);
+        offset += offsetInc;
 
         meshRenderer.material.mainTextureOffset = new Vector2(offset, 0);
         prevPos = followee.transform.position.x;
