@@ -17,8 +17,15 @@ public class CBController : MonoBehaviour
     private bool falling = false;
     private bool fallen = false;
     private bool jumping = false;
+    private bool resettable = false;
     [SerializeField]
     private CBFollower mainCam;
+
+    private const int waypointCount = 3;
+    [SerializeField]
+    private Vector2[] waypoints = new Vector2[waypointCount];
+    private int resetPlace = 0;
+
 
     private void Awake()
     {
@@ -41,6 +48,17 @@ public class CBController : MonoBehaviour
                 falling = true;
                 anim.SetBool("falling", true);
 
+                for (int i=0; i< waypointCount; i++)
+                {
+                    if (transform.position.x > waypoints[i].x)
+                    {
+                        resetPlace = i;
+                    } else
+                    {
+                        break;
+                    }
+                }
+
                 if (collider.gameObject.tag == "Obstacle")
                 {
                     rb2D.velocity = new Vector2(-rb2D.velocity.x, rb2D.velocity.y);
@@ -54,26 +72,25 @@ public class CBController : MonoBehaviour
         if (collider.gameObject.tag == "Fallbox")
         {
             mainCam.follow = false;
+            resettable = true;
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (falling) {
-            if (rb2D.velocity.magnitude < 0.001)
-            {
-                anim.SetBool("falling", false);
-                anim.SetBool("fallen", true);
-                fallen = true;
-                falling = false;
-            }
-        } else if (fallen)
+        if (resettable)
         {
             // Use SPACEBAR to reset after falling
             if (Input.GetAxis("Jump") > 0)
             {
+                transform.position = new Vector3(waypoints[resetPlace].x, waypoints[resetPlace].y, transform.position.z);
+                rb2D.velocity = new Vector2(0,0);
+                resettable = false;
+                jumping = false;
+                falling = false;
                 fallen = false;
+                anim.SetBool("falling", false);
                 anim.SetBool("fallen", false);
                 anim.SetBool("running", false);
                 anim.SetBool("jumping", false);
@@ -83,78 +100,92 @@ public class CBController : MonoBehaviour
         }
         else
         {
-            rb2D.AddForce(Vector2.right * 10 * Input.GetAxis("Horizontal"));
-            if (Mathf.Abs(rb2D.velocity.x) > maxSpeed)
+            if (falling)
             {
-                rb2D.velocity = new Vector2((Mathf.Sign(rb2D.velocity.x)) * maxSpeed, rb2D.velocity.y);
-            }
-
-            anim.SetBool("running", Mathf.Abs(rb2D.velocity.x) > 0.001);
-            anim.SetFloat("speedMultiplier", Mathf.Abs(rb2D.velocity.x) / maxSpeed);
-
-            if (!jumping && Input.GetAxis("Jump") > 0 && (Mathf.Abs(rb2D.velocity.y) < 0.001))
-            {
-                jumpInitYPos = rb2D.position.y;
-                rb2D.AddForce(Vector2.up * upFactor, ForceMode2D.Impulse);
-                jumping = true;
-                anim.SetBool("jumping", true);
-                jumpState = 0;
-            }
-
-            if (Mathf.Abs(rb2D.velocity.y) > 0.001)
-            {
-                switch (jumpState)
+                if (rb2D.velocity.magnitude < 0.001)
                 {
-                    case 0:
-                        {
-                            if (rb2D.position.y > jumpInitYPos + 0.1)
-                            {
-                                jumpState++;
-                            }
-                        }
-                        break;
-                    case 1:
-                        {
-                            if (rb2D.velocity.y < 0)
-                            {
-                                jumpState++;
-                            }
-                        }
-                        break;
-                    case 2:
-                        {
-                            if (rb2D.position.y < jumpInitYPos + 0.1)
-                            {
-                                jumpState++;
-                            }
-                        }
-                        break;
-                    case 3:
-                        {
-                            // No transitions other than to stop jumping
-                        }
-                        break;
+                    anim.SetBool("falling", false);
+                    anim.SetBool("fallen", true);
+                    fallen = true;
+                    falling = false;
+                    resettable = true;
                 }
-
-                anim.SetInteger("jumpState", jumpState);
             }
             else
             {
-                jumpState = 3;
-                anim.SetInteger("jumpState", jumpState);
-                anim.SetBool("jumping", false);
-                jumping = false;
-            }
-
-            if (rb2D.velocity.magnitude > 0.001)
-            {
-                if (rb2D.velocity.x < 0)
+                rb2D.AddForce(Vector2.right * 10 * Input.GetAxis("Horizontal"));
+                if (Mathf.Abs(rb2D.velocity.x) > maxSpeed)
                 {
-                    transform.localScale = new Vector3(-1, 1, 1);
+                    rb2D.velocity = new Vector2((Mathf.Sign(rb2D.velocity.x)) * maxSpeed, rb2D.velocity.y);
+                }
+
+                anim.SetBool("running", Mathf.Abs(rb2D.velocity.x) > 0.001);
+                anim.SetFloat("speedMultiplier", Mathf.Abs(rb2D.velocity.x) / maxSpeed);
+
+                if (!jumping && Input.GetAxis("Jump") > 0 && (Mathf.Abs(rb2D.velocity.y) < 0.001))
+                {
+                    jumpInitYPos = rb2D.position.y;
+                    rb2D.AddForce(Vector2.up * upFactor, ForceMode2D.Impulse);
+                    jumping = true;
+                    anim.SetBool("jumping", true);
+                    jumpState = 0;
+                }
+
+                if (Mathf.Abs(rb2D.velocity.y) > 0.001)
+                {
+                    switch (jumpState)
+                    {
+                        case 0:
+                            {
+                                if (rb2D.position.y > jumpInitYPos + 0.1)
+                                {
+                                    jumpState++;
+                                }
+                            }
+                            break;
+                        case 1:
+                            {
+                                if (rb2D.velocity.y < 0)
+                                {
+                                    jumpState++;
+                                }
+                            }
+                            break;
+                        case 2:
+                            {
+                                if (rb2D.position.y < jumpInitYPos + 0.1)
+                                {
+                                    jumpState++;
+                                }
+                            }
+                            break;
+                        case 3:
+                            {
+                                // No transitions other than to stop jumping
+                            }
+                            break;
+                    }
+
+                    anim.SetInteger("jumpState", jumpState);
                 }
                 else
                 {
-                    transform.localScale = new Vector3(1, 1, 1);
+                    jumpState = 3;
+                    anim.SetInteger("jumpState", jumpState);
+                    anim.SetBool("jumping", false);
+                    jumping = false;
+                }
+
+                if (rb2D.velocity.magnitude > 0.001)
+                {
+                    if (rb2D.velocity.x < 0)
+                    {
+                        transform.localScale = new Vector3(-1, 1, 1);
+                    }
+                    else
+                    {
+                        transform.localScale = new Vector3(1, 1, 1);
+                    }
                 }
             }
         }
