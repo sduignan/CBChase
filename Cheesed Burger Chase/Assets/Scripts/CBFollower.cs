@@ -6,18 +6,22 @@ public class CBFollower : MonoBehaviour
 {
     [SerializeField]
     private Transform followee;
-    public bool follow = true;
+    private bool follow = true;
+    private AudioSource audio;
+    private float deathDelay = 0;
+    [SerializeField]
+    private AudioClip mainTune, deathTune;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        audio = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     private void LateUpdate()
@@ -26,5 +30,29 @@ public class CBFollower : MonoBehaviour
         {
             transform.position = new Vector3(followee.position.x, followee.position.y, transform.position.z);
         }
+    }
+
+    public void SetDeathAudioDelay(float delay)
+    {
+        deathDelay = delay;
+    }
+
+    public void SetFollow(bool newValue)
+    {
+        if (follow ^ newValue)
+        {
+            if (!newValue)
+            {
+                audio.Stop();
+                audio.clip = deathTune;
+                audio.PlayDelayed(deathDelay);
+            } else
+            {
+                audio.Stop();
+                audio.clip = mainTune;
+                audio.Play();
+            }
+        }
+        follow = newValue;
     }
 }

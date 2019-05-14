@@ -20,6 +20,9 @@ public class CBController : MonoBehaviour
     private bool resettable = false;
     [SerializeField]
     private CBFollower mainCam;
+    [SerializeField]
+    private AudioClip jumpSound, collideSound, deathSound;
+    private AudioSource audio;
 
     private const int waypointCount = 3;
     [SerializeField]
@@ -31,12 +34,14 @@ public class CBController : MonoBehaviour
     {
         rb2D = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        audio = GetComponent<AudioSource>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        mainCam.follow = true;
+        mainCam.SetFollow(true);
+        mainCam.SetDeathAudioDelay(deathSound.length);
     }
 
     private void OnTriggerEnter2D(Collider2D collider)
@@ -62,6 +67,8 @@ public class CBController : MonoBehaviour
                 if (collider.gameObject.tag == "Obstacle")
                 {
                     rb2D.velocity = new Vector2(-rb2D.velocity.x, rb2D.velocity.y);
+                    audio.clip = collideSound;
+                    audio.Play();
                 }
             }
         }
@@ -71,8 +78,10 @@ public class CBController : MonoBehaviour
     {
         if (collider.gameObject.tag == "Fallbox")
         {
-            mainCam.follow = false;
+            mainCam.SetFollow(false);
             resettable = true;
+            audio.clip = deathSound;
+            audio.Play();
         }
     }
 
@@ -95,7 +104,7 @@ public class CBController : MonoBehaviour
                 anim.SetBool("running", false);
                 anim.SetBool("jumping", false);
                 anim.Play("CB_idle");
-                mainCam.follow = true;
+                mainCam.SetFollow(true);
             }
         }
         else
@@ -109,6 +118,9 @@ public class CBController : MonoBehaviour
                     fallen = true;
                     falling = false;
                     resettable = true;
+                    mainCam.SetFollow(false);
+                    audio.clip = deathSound;
+                    audio.Play();
                 }
             }
             else
@@ -129,6 +141,8 @@ public class CBController : MonoBehaviour
                     jumping = true;
                     anim.SetBool("jumping", true);
                     jumpState = 0;
+                    audio.clip = jumpSound;
+                    audio.Play();
                 }
 
                 if (Mathf.Abs(rb2D.velocity.y) > 0.001)
