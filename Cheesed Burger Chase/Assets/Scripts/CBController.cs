@@ -29,6 +29,8 @@ public class CBController : MonoBehaviour
     private Vector2[] waypoints = new Vector2[waypointCount];
     private int resetPlace = 0;
 
+    private Collider2D[] collidingObjs = new Collider2D[5];
+
 
     private void Awake()
     {
@@ -126,15 +128,31 @@ public class CBController : MonoBehaviour
             else
             {
                 rb2D.AddForce(Vector2.right * 10 * Input.GetAxis("Horizontal"));
-                if (Mathf.Abs(rb2D.velocity.x) > maxSpeed)
+
+                Vector2 currLocalVelocity = rb2D.velocity;
+                int attachedCollidersCount = rb2D.GetAttachedColliders(collidingObjs);
+                if (attachedCollidersCount > 1)
+                {
+                    Debug.Log("Whuuuut");
+                }
+                for(int i=0; i<attachedCollidersCount; i++)
+                {
+                    if (collidingObjs[i].GetComponent<Rigidbody2D>() && collidingObjs[i].name != name)
+                    {
+                        Debug.Log("Collider: " +collidingObjs[i].name);
+                        currLocalVelocity -= collidingObjs[i].GetComponent<Rigidbody2D>().velocity;
+                    }
+                }
+
+                if (Mathf.Abs(currLocalVelocity.x) > maxSpeed)
                 {
                     rb2D.velocity = new Vector2((Mathf.Sign(rb2D.velocity.x)) * maxSpeed, rb2D.velocity.y);
                 }
 
-                anim.SetBool("running", Mathf.Abs(rb2D.velocity.x) > 0.001);
-                anim.SetFloat("speedMultiplier", Mathf.Abs(rb2D.velocity.x) / maxSpeed);
+                anim.SetBool("running", Mathf.Abs(currLocalVelocity.x) > 0.001);
+                anim.SetFloat("speedMultiplier", Mathf.Abs(currLocalVelocity.x) / maxSpeed);
 
-                if (!jumping && Input.GetAxis("Jump") > 0 && (Mathf.Abs(rb2D.velocity.y) < 0.001))
+                if (!jumping && Input.GetAxis("Jump") > 0 && (Mathf.Abs(currLocalVelocity.y) < 0.001))
                 {
                     jumpInitYPos = rb2D.position.y;
                     rb2D.AddForce(Vector2.up * upFactor, ForceMode2D.Impulse);
@@ -145,7 +163,7 @@ public class CBController : MonoBehaviour
                     audio.Play();
                 }
 
-                if (Mathf.Abs(rb2D.velocity.y) > 0.001)
+                if (Mathf.Abs(currLocalVelocity.y) > 0.001)
                 {
                     switch (jumpState)
                     {
@@ -159,7 +177,7 @@ public class CBController : MonoBehaviour
                             break;
                         case 1:
                             {
-                                if (rb2D.velocity.y < 0)
+                                if (currLocalVelocity.y < 0)
                                 {
                                     jumpState++;
                                 }
@@ -190,9 +208,9 @@ public class CBController : MonoBehaviour
                     jumping = false;
                 }
 
-                if (rb2D.velocity.magnitude > 0.001)
+                if (currLocalVelocity.magnitude > 0.001)
                 {
-                    if (rb2D.velocity.x < 0)
+                    if (currLocalVelocity.x < 0)
                     {
                         transform.localScale = new Vector3(-1, 1, 1);
                     }
@@ -202,15 +220,6 @@ public class CBController : MonoBehaviour
                     }
                 }
             }
-        }
-    }
-
-    private void LateUpdate()
-    {
-        if (Mathf.Abs(rb2D.velocity.x) > maxSpeed)
-        {
-            Debug.Log("Reducing");
-            rb2D.velocity = new Vector2((Mathf.Sign(rb2D.velocity.x)) * maxSpeed, rb2D.velocity.y);
         }
     }
 }

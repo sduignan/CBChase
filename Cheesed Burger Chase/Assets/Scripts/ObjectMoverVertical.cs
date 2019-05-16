@@ -23,14 +23,8 @@ public class ObjectMoverVertical : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (speed < 0)
-        {
-            speed = -speed;
-        }
-        if (startOffset < 0)
-        {
-            startOffset = -startOffset;
-        }
+        speed = Mathf.Abs(speed);
+        startOffset = Mathf.Abs(startOffset);
         startPos = rb2D.transform.position.y;
         rb2D.transform.position = new Vector3(rb2D.transform.position.x, rb2D.transform.position.y + startOffset, rb2D.transform.position.z);
         rb2D.velocity = new Vector2(0, speed);
