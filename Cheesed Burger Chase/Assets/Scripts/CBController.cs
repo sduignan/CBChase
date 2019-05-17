@@ -84,6 +84,7 @@ public class CBController : MonoBehaviour
             resettable = true;
             audio.clip = deathSound;
             audio.Play();
+            rb2D.velocity = new Vector2(0, rb2D.velocity.y);
         }
     }
 
@@ -130,16 +131,12 @@ public class CBController : MonoBehaviour
                 rb2D.AddForce(Vector2.right * 10 * Input.GetAxis("Horizontal"));
 
                 Vector2 currLocalVelocity = rb2D.velocity;
-                int attachedCollidersCount = rb2D.GetAttachedColliders(collidingObjs);
-                if (attachedCollidersCount > 1)
-                {
-                    Debug.Log("Whuuuut");
-                }
+                int attachedCollidersCount = rb2D.GetContacts(collidingObjs);
+
                 for(int i=0; i<attachedCollidersCount; i++)
                 {
                     if (collidingObjs[i].GetComponent<Rigidbody2D>() && collidingObjs[i].name != name)
                     {
-                        Debug.Log("Collider: " +collidingObjs[i].name);
                         currLocalVelocity -= collidingObjs[i].GetComponent<Rigidbody2D>().velocity;
                     }
                 }
@@ -161,51 +158,54 @@ public class CBController : MonoBehaviour
                     jumpState = 0;
                     audio.clip = jumpSound;
                     audio.Play();
-                }
-
-                if (Mathf.Abs(currLocalVelocity.y) > 0.001)
-                {
-                    switch (jumpState)
-                    {
-                        case 0:
-                            {
-                                if (rb2D.position.y > jumpInitYPos + 0.1)
-                                {
-                                    jumpState++;
-                                }
-                            }
-                            break;
-                        case 1:
-                            {
-                                if (currLocalVelocity.y < 0)
-                                {
-                                    jumpState++;
-                                }
-                            }
-                            break;
-                        case 2:
-                            {
-                                if (rb2D.position.y < jumpInitYPos + 0.1)
-                                {
-                                    jumpState++;
-                                }
-                            }
-                            break;
-                        case 3:
-                            {
-                                // No transitions other than to stop jumping
-                            }
-                            break;
-                    }
-
                     anim.SetInteger("jumpState", jumpState);
                 }
                 else
                 {
-                    jumpState = 3;
-                    anim.SetInteger("jumpState", jumpState);
-                    anim.SetBool("jumping", false);
-                    jumping = false;
+                    if (Mathf.Abs(currLocalVelocity.y) > 0.001)
+                    {
+                        switch (jumpState)
+                        {
+                            case 0:
+                                {
+                                    if (rb2D.position.y > jumpInitYPos + 0.1)
+                                    {
+                                        jumpState++;
+                                    }
+                                }
+                                break;
+                            case 1:
+                                {
+                                    if (currLocalVelocity.y < 0)
+                                    {
+                                        jumpState++;
+                                    }
+                                }
+                                break;
+                            case 2:
+                                {
+                                    if (rb2D.position.y < jumpInitYPos + 0.1)
+                                    {
+                                        jumpState++;
+                                    }
+                                }
+                                break;
+                            case 3:
+                                {
+                                    // No transitions other than to stop jumping
+                                }
+                                break;
+                        }
+
+                        anim.SetInteger("jumpState", jumpState);
+                    }
+                    else
+                    {
+                        jumpState = 3;
+                        anim.SetInteger("jumpState", jumpState);
+                        anim.SetBool("jumping", false);
+                        jumping = false;
+                    }
                 }
 
                 if (currLocalVelocity.magnitude > 0.001)
