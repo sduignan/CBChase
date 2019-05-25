@@ -37,9 +37,9 @@ public class CBFollower : MonoBehaviour
         deathDelay = delay;
     }
 
-    public void SetFollow(bool newValue)
+    public void SetFollow(bool newValue, bool died)
     {
-        if (follow ^ newValue)
+        if (follow ^ newValue && died)
         {
             if (!newValue)
             {
