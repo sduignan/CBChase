@@ -113,6 +113,12 @@ public class CBController : MonoBehaviour
             anim.SetBool("running", false);
             anim.SetBool("jumping", false);
             anim.Play("CB_idle");
+
+            TimelineAsset timelineAsset = (TimelineAsset)milkshakeTimeline.playableAsset;
+            var tracklist = new List<PlayableBinding>(timelineAsset.outputs);
+            var track = tracklist[2].sourceObject as TrackAsset;
+            milkshakeTimeline.SetGenericBinding(track, anim);
+
             milkshakeTimeline.Play();
         }
         if (collider.gameObject.tag == "cheepsTriggerbox")
@@ -120,6 +126,12 @@ public class CBController : MonoBehaviour
             collider.gameObject.SetActive(false);
             paused = true;
             mainCam.SetFollow(false, false);
+
+            TimelineAsset timelineAsset = (TimelineAsset)cheepsTimeline.playableAsset;
+            var tracklist = new List<PlayableBinding>(timelineAsset.outputs);
+            var track = tracklist[2].sourceObject as TrackAsset;
+            cheepsTimeline.SetGenericBinding(track, anim);
+
             cheepsTimeline.Play();
         }
     }
@@ -146,7 +158,7 @@ public class CBController : MonoBehaviour
     public void OnCutsceneOver(PlayableDirector aDirector)
     {
         if (aDirector == hotdogTimeline || aDirector == milkshakeTimeline)
-        {
+        {            
             paused = false;
             mainCam.SetFollow(true, false);
             Destroy(GetComponent<Animator>());
