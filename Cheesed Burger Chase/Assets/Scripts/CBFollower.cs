@@ -10,7 +10,7 @@ public class CBFollower : MonoBehaviour
     private AudioSource audio;
     private float deathDelay = 0;
     [SerializeField]
-    private AudioClip mainTune, deathTune;
+    private AudioClip mainTune, deathTune, winTune;
 
     // Start is called before the first frame update
     void Start()
@@ -54,5 +54,13 @@ public class CBFollower : MonoBehaviour
             }
         }
         follow = newValue;
+    }
+
+    public void SetWin()
+    {
+        SetFollow(false, false);
+        audio.Stop();
+        audio.clip = winTune;
+        audio.Play();
     }
 }

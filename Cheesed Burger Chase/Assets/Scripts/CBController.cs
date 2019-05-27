@@ -125,7 +125,7 @@ public class CBController : MonoBehaviour
         {
             collider.gameObject.SetActive(false);
             paused = true;
-            mainCam.SetFollow(false, false);
+            mainCam.SetWin();
 
             TimelineAsset timelineAsset = (TimelineAsset)cheepsTimeline.playableAsset;
             var tracklist = new List<PlayableBinding>(timelineAsset.outputs);
