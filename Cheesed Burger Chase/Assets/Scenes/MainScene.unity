@@ -183,6 +183,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: BackgroundLayer3
       objectReference: {fileID: 0}
+    - target: {fileID: 636120753492574378, guid: 1a748938a925a4e14ba1c9d55198cdbe,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 636120753492574382, guid: 1a748938a925a4e14ba1c9d55198cdbe,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4580,6 +4585,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 287018713}
+  - {fileID: 1932904129}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8183,7 +8189,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 935820131}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.2, z: 0.1}
+  m_LocalPosition: {x: 0, y: 0.155, z: 0.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -8277,9 +8283,11 @@ MonoBehaviour:
   - {x: 0, y: 0.155}
   - {x: 112.56, y: 0.155}
   - {x: 223.44, y: 0.155}
+  paused: 0
   hotdogTimeline: {fileID: 1449576518}
   milkshakeTimeline: {fileID: 151018564}
   cheepsTimeline: {fileID: 1524358117}
+  screenController: {fileID: 1932904131}
 --- !u!82 &935820138
 AudioSource:
   m_ObjectHideFlags: 0
@@ -14078,7 +14086,7 @@ PlayableDirector:
   serializedVersion: 3
   m_PlayableAsset: {fileID: 11400000, guid: b631a491f7597264c901054c50077312, type: 2}
   m_InitialState: 0
-  m_WrapMode: 0
+  m_WrapMode: 2
   m_DirectorUpdateMode: 1
   m_InitialTime: 0
   m_SceneBindings:
@@ -15310,7 +15318,7 @@ PrefabInstance:
     - target: {fileID: 6676386435177025419, guid: 50a5d42eaea6f224592c4ebc2e456001,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 263.62
+      value: 263.9
       objectReference: {fileID: 0}
     - target: {fileID: 6676386435177025419, guid: 50a5d42eaea6f224592c4ebc2e456001,
         type: 3}
@@ -17513,6 +17521,105 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 950449d0b27651a468ef7ab92051b9cb, type: 3}
+--- !u!1 &1932904128
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1932904129}
+  - component: {fileID: 1932904130}
+  - component: {fileID: 1932904131}
+  m_Layer: 0
+  m_Name: screens
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1932904129
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1932904128}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 8}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 519420032}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &1932904130
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1932904128}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: ca4c9c21ec1120244b02775cf38c598e, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 4.2, y: 2.1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!114 &1932904131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1932904128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfdeb2983a617cc4baae07a9f80b3f35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  splashScreen: {fileID: 21300000, guid: ca4c9c21ec1120244b02775cf38c598e, type: 3}
+  storyScreen: {fileID: 21300000, guid: 4e097aa0d62e655448b67aab45307af0, type: 3}
+  instructionScreen: {fileID: 21300000, guid: d50a3a376322f2b4883e678d908f5490, type: 3}
+  creditsScreen: {fileID: 21300000, guid: 037978e9acdaac44abe0b4e30ce47887, type: 3}
+  deathScreen: {fileID: 21300000, guid: 73256ae12614f8b458a9f456081b211c, type: 3}
+  winScreen: {fileID: 21300000, guid: d66783e091cfc984dbabf895416c8605, type: 3}
+  cheesyController: {fileID: 935820137}
 --- !u!1001 &1935568863
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19676,6 +19783,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: BackgroundLayer1
+      objectReference: {fileID: 0}
+    - target: {fileID: 636120753492574378, guid: 1a748938a925a4e14ba1c9d55198cdbe,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 636120753492574382, guid: 1a748938a925a4e14ba1c9d55198cdbe,
         type: 3}

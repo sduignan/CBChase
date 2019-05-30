@@ -21,7 +21,6 @@ public class CBController : MonoBehaviour
     private bool falling = false;
     private bool fallen = false;
     private bool jumping = false;
-    private bool resettable = false;
     [SerializeField]
     private CBFollower mainCam;
     [SerializeField]
@@ -35,13 +34,16 @@ public class CBController : MonoBehaviour
 
     private Collider2D[] collidingObjs = new Collider2D[5];
 
-    private bool paused = false;
+    public bool paused = false;
     [SerializeField]
     private PlayableDirector hotdogTimeline;
     [SerializeField]
     private PlayableDirector milkshakeTimeline;
     [SerializeField]
     private PlayableDirector cheepsTimeline;
+
+    [SerializeField]
+    private ScreensController screenController;
 
 
     private void Awake()
@@ -133,6 +135,7 @@ public class CBController : MonoBehaviour
             cheepsTimeline.SetGenericBinding(track, anim);
 
             cheepsTimeline.Play();
+            screenController.SetScreenDelayed(ScreensController.ScreenState.win, (float)cheepsTimeline.duration);
         }
     }
 
@@ -141,10 +144,10 @@ public class CBController : MonoBehaviour
         if (collider.gameObject.tag == "Fallbox")
         {
             mainCam.SetFollow(false, true);
-            resettable = true;
             audio.clip = deathSound;
             audio.Play();
             rb2D.velocity = new Vector2(0, rb2D.velocity.y);
+            StartCoroutine(OhNoDead());
         }
     }
 
@@ -166,138 +169,141 @@ public class CBController : MonoBehaviour
         }
     }
 
+    public void UnDie()
+    {
+        transform.position = new Vector3(waypoints[resetPlace].x, waypoints[resetPlace].y, transform.position.z);
+        rb2D.velocity = new Vector2(0, 0);
+        jumping = false;
+        falling = false;
+        fallen = false;
+        anim.SetBool("falling", false);
+        anim.SetBool("fallen", false);
+        anim.SetBool("running", false);
+        anim.SetBool("jumping", false);
+        anim.Play("CB_idle");
+        mainCam.SetFollow(true, true);
+    }
+
+    public IEnumerator OhNoDead()
+    {
+        yield return new WaitForSeconds(deathSound.length);
+
+        screenController.SetScreen(ScreensController.ScreenState.death);
+
+        yield return null;
+    }
+
     // Update is called once per frame
     void Update()
     {
         if (!paused)
         {
-            if (resettable)
+            if (falling)
             {
-                // Use SPACEBAR to reset after falling
-                if (Input.GetAxis("Jump") > 0)
+                if (rb2D.velocity.magnitude < 0.001)
                 {
-                    transform.position = new Vector3(waypoints[resetPlace].x, waypoints[resetPlace].y, transform.position.z);
-                    rb2D.velocity = new Vector2(0, 0);
-                    resettable = false;
-                    jumping = false;
-                    falling = false;
-                    fallen = false;
                     anim.SetBool("falling", false);
-                    anim.SetBool("fallen", false);
-                    anim.SetBool("running", false);
-                    anim.SetBool("jumping", false);
-                    anim.Play("CB_idle");
-                    mainCam.SetFollow(true, true);
+                    anim.SetBool("fallen", true);
+                    fallen = true;
+                    falling = false;
+                    mainCam.SetFollow(false, true);
+                    paused = true;
+                    audio.clip = deathSound;
+                    audio.Play();
+                    StartCoroutine(OhNoDead());
                 }
             }
             else
             {
-                if (falling)
+                rb2D.AddForce(Vector2.right * 10 * Input.GetAxis("Horizontal"));
+
+                Vector2 currLocalVelocity = rb2D.velocity;
+                int attachedCollidersCount = rb2D.GetContacts(collidingObjs);
+
+                for (int i = 0; i < attachedCollidersCount; i++)
                 {
-                    if (rb2D.velocity.magnitude < 0.001)
+                    if (collidingObjs[i].GetComponent<Rigidbody2D>() && collidingObjs[i].name != name)
                     {
-                        anim.SetBool("falling", false);
-                        anim.SetBool("fallen", true);
-                        fallen = true;
-                        falling = false;
-                        resettable = true;
-                        mainCam.SetFollow(false, true);
-                        audio.clip = deathSound;
-                        audio.Play();
+                        currLocalVelocity -= collidingObjs[i].GetComponent<Rigidbody2D>().velocity;
                     }
+                }
+
+                if (Mathf.Abs(currLocalVelocity.x) > maxSpeed)
+                {
+                    rb2D.velocity = new Vector2((Mathf.Sign(rb2D.velocity.x)) * maxSpeed, rb2D.velocity.y);
+                }
+
+                anim.SetBool("running", Mathf.Abs(currLocalVelocity.x) > 0.001);
+                anim.SetFloat("speedMultiplier", Mathf.Abs(currLocalVelocity.x) / maxSpeed);
+
+                if (!jumping && Input.GetAxis("Jump") > 0 && (Mathf.Abs(currLocalVelocity.y) < 0.001))
+                {
+                    jumpInitYPos = rb2D.position.y;
+                    rb2D.AddForce(Vector2.up * upFactor, ForceMode2D.Impulse);
+                    jumping = true;
+                    anim.SetBool("jumping", true);
+                    jumpState = 0;
+                    audio.clip = jumpSound;
+                    audio.Play();
+                    anim.SetInteger("jumpState", jumpState);
                 }
                 else
                 {
-                    rb2D.AddForce(Vector2.right * 10 * Input.GetAxis("Horizontal"));
-
-                    Vector2 currLocalVelocity = rb2D.velocity;
-                    int attachedCollidersCount = rb2D.GetContacts(collidingObjs);
-
-                    for (int i = 0; i < attachedCollidersCount; i++)
+                    if (Mathf.Abs(currLocalVelocity.y) > 0.001)
                     {
-                        if (collidingObjs[i].GetComponent<Rigidbody2D>() && collidingObjs[i].name != name)
+                        switch (jumpState)
                         {
-                            currLocalVelocity -= collidingObjs[i].GetComponent<Rigidbody2D>().velocity;
+                            case 0:
+                                {
+                                    if (rb2D.position.y > jumpInitYPos + 0.1)
+                                    {
+                                        jumpState++;
+                                    }
+                                }
+                                break;
+                            case 1:
+                                {
+                                    if (currLocalVelocity.y < 0)
+                                    {
+                                        jumpState++;
+                                    }
+                                }
+                                break;
+                            case 2:
+                                {
+                                    if (rb2D.position.y < jumpInitYPos + 0.1)
+                                    {
+                                        jumpState++;
+                                    }
+                                }
+                                break;
+                            case 3:
+                                {
+                                    // No transitions other than to stop jumping
+                                }
+                                break;
                         }
-                    }
 
-                    if (Mathf.Abs(currLocalVelocity.x) > maxSpeed)
-                    {
-                        rb2D.velocity = new Vector2((Mathf.Sign(rb2D.velocity.x)) * maxSpeed, rb2D.velocity.y);
-                    }
-
-                    anim.SetBool("running", Mathf.Abs(currLocalVelocity.x) > 0.001);
-                    anim.SetFloat("speedMultiplier", Mathf.Abs(currLocalVelocity.x) / maxSpeed);
-
-                    if (!jumping && Input.GetAxis("Jump") > 0 && (Mathf.Abs(currLocalVelocity.y) < 0.001))
-                    {
-                        jumpInitYPos = rb2D.position.y;
-                        rb2D.AddForce(Vector2.up * upFactor, ForceMode2D.Impulse);
-                        jumping = true;
-                        anim.SetBool("jumping", true);
-                        jumpState = 0;
-                        audio.clip = jumpSound;
-                        audio.Play();
                         anim.SetInteger("jumpState", jumpState);
                     }
                     else
                     {
-                        if (Mathf.Abs(currLocalVelocity.y) > 0.001)
-                        {
-                            switch (jumpState)
-                            {
-                                case 0:
-                                    {
-                                        if (rb2D.position.y > jumpInitYPos + 0.1)
-                                        {
-                                            jumpState++;
-                                        }
-                                    }
-                                    break;
-                                case 1:
-                                    {
-                                        if (currLocalVelocity.y < 0)
-                                        {
-                                            jumpState++;
-                                        }
-                                    }
-                                    break;
-                                case 2:
-                                    {
-                                        if (rb2D.position.y < jumpInitYPos + 0.1)
-                                        {
-                                            jumpState++;
-                                        }
-                                    }
-                                    break;
-                                case 3:
-                                    {
-                                        // No transitions other than to stop jumping
-                                    }
-                                    break;
-                            }
-
-                            anim.SetInteger("jumpState", jumpState);
-                        }
-                        else
-                        {
-                            jumpState = 3;
-                            anim.SetInteger("jumpState", jumpState);
-                            anim.SetBool("jumping", false);
-                            jumping = false;
-                        }
+                        jumpState = 3;
+                        anim.SetInteger("jumpState", jumpState);
+                        anim.SetBool("jumping", false);
+                        jumping = false;
                     }
+                }
 
-                    if (currLocalVelocity.magnitude > 0.001)
+                if (currLocalVelocity.magnitude > 0.001)
+                {
+                    if (currLocalVelocity.x < 0)
                     {
-                        if (currLocalVelocity.x < 0)
-                        {
-                            transform.localScale = new Vector3(-1, 1, 1);
-                        }
-                        else
-                        {
-                            transform.localScale = new Vector3(1, 1, 1);
-                        }
+                        transform.localScale = new Vector3(-1, 1, 1);
+                    }
+                    else
+                    {
+                        transform.localScale = new Vector3(1, 1, 1);
                     }
                 }
             }
