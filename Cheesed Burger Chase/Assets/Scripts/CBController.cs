@@ -58,7 +58,7 @@ public class CBController : MonoBehaviour
     void Start()
     {
         mainCam.SetFollow(true, false);
-        mainCam.SetDeathAudioDelay(deathSound.length);
+        mainCam.SetDeathAudioDelay(deathSound.length - 0.8f);
         hotdogTimeline.stopped += OnCutsceneOver;
         milkshakeTimeline.stopped += OnCutsceneOver;
     }
@@ -186,7 +186,7 @@ public class CBController : MonoBehaviour
 
     public IEnumerator OhNoDead()
     {
-        yield return new WaitForSeconds(deathSound.length);
+        yield return new WaitForSeconds(deathSound.length - 0.8f);
 
         screenController.SetScreen(ScreensController.ScreenState.death);
 
@@ -200,7 +200,18 @@ public class CBController : MonoBehaviour
         {
             if (falling)
             {
-                if (rb2D.velocity.magnitude < 0.001)
+                Vector2 currLocalVelocity = rb2D.velocity;
+                int attachedCollidersCount = rb2D.GetContacts(collidingObjs);
+
+                for (int i = 0; i < attachedCollidersCount; i++)
+                {
+                    if (collidingObjs[i].GetComponent<Rigidbody2D>() && collidingObjs[i].name != name)
+                    {
+                        currLocalVelocity -= collidingObjs[i].GetComponent<Rigidbody2D>().velocity;
+                    }
+                }
+
+                if (currLocalVelocity.magnitude < 0.001)
                 {
                     anim.SetBool("falling", false);
                     anim.SetBool("fallen", true);

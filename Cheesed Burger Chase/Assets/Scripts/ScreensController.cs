@@ -6,11 +6,12 @@ using UnityEngine;
 public class ScreensController : MonoBehaviour
 {
     [SerializeField]
-    private Sprite splashScreen, storyScreen, instructionScreen, creditsScreen, deathScreen, winScreen;
+    private Sprite splashScreen, storyScreen, instructionScreen, creditsScreen, quitScreen, deathScreen, winScreen;
     private SpriteRenderer spriteRenderer;
-    public enum ScreenState { none, splash, story, intro, credits, death, win };
+    public enum ScreenState { none, splash, story, intro, credits, quit, death, win };
     private ScreenState screenState = ScreenState.splash;
     private ScreenState preCreditsState = ScreenState.none;
+    private ScreenState preQuitState = ScreenState.none;
     private float currCountdownTime = 3.0f;
     [SerializeField]
     private CBController cheesyController;
@@ -70,6 +71,12 @@ public class ScreensController : MonoBehaviour
                 {
                     currCountdownTime = 0f;
                     spriteRenderer.sprite = creditsScreen;
+                }
+                break;
+            case ScreenState.quit:
+                {
+                    currCountdownTime = 0f;
+                    spriteRenderer.sprite = quitScreen;
                 }
                 break;
             case ScreenState.death:
@@ -145,6 +152,14 @@ public class ScreensController : MonoBehaviour
 
                 }
                 break;
+            case ScreenState.quit:
+                {
+                    if (Input.GetKeyUp(KeyCode.Space))
+                    {
+                        SetScreen(preQuitState);
+                    }
+                }
+                break;
             case ScreenState.death:
                 {
                     if (Input.GetKeyUp(KeyCode.Space))
@@ -155,6 +170,11 @@ public class ScreensController : MonoBehaviour
                         cheesyController.UnDie();
                     }
                 } break;
+            case ScreenState.win:
+                {
+
+                }
+                break;
         }
 
         if (Input.GetKeyUp(KeyCode.UpArrow) && (screenState != ScreenState.none) && (screenState != ScreenState.splash) && (screenState != ScreenState.credits))
@@ -162,6 +182,19 @@ public class ScreensController : MonoBehaviour
             preCreditsState = screenState;
             screenState = ScreenState.credits;
             spriteRenderer.sprite = creditsScreen;
+        }
+
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            if (screenState == ScreenState.quit)
+            {
+                Application.Quit();
+            } else
+            {
+                preQuitState = screenState;
+                screenState = ScreenState.quit;
+                spriteRenderer.sprite = quitScreen;
+            }
         }
     }
 }
